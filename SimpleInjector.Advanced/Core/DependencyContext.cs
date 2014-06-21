@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace SimpleInjector.Advanced.Extensions
+namespace SimpleInjector.Advanced.Core
 {
     /// <summary>
     /// Describes the context in which a service request must be fulfilled.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace SimpleInjector.Advanced.Extensions
+namespace SimpleInjector.Advanced.Core
 {
     internal sealed class DependencyContextRewriter : ExpressionVisitor
     {

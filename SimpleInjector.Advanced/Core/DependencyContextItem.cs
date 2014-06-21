@@ -1,4 +1,4 @@
-namespace SimpleInjector.Advanced.Extensions
+namespace SimpleInjector.Advanced.Core
 {
     internal class DependencyContextItem<TImplementation, TService> : IDependencyContextItem<TService>
     {

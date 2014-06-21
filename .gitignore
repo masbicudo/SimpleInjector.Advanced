@@ -5,6 +5,7 @@ ipch/
 _ReSharper*/
 TestResults/
 _ReSharper.*
+packages/
 
 *.sdf
 *.opensdf
@@ -81,3 +82,4 @@ UpgradeLog*.htm*
 # files not to be commited
 Uncommited.*
 Uncommited/
+

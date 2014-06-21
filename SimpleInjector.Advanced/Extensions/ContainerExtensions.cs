@@ -1,4 +1,5 @@
 ﻿using System;
+using SimpleInjector.Advanced.Core;
 
 namespace SimpleInjector.Advanced.Extensions
 {

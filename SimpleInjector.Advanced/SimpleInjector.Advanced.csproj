@@ -51,10 +51,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ContainerExtensions.cs" />
-    <Compile Include="Extensions\DependencyContext.cs" />
-    <Compile Include="Extensions\DependencyContextItem.cs" />
-    <Compile Include="Extensions\DependencyContextRewriter.cs" />
-    <Compile Include="Extensions\IDependencyContextItem.cs" />
+    <Compile Include="Core\DependencyContext.cs" />
+    <Compile Include="Core\DependencyContextItem.cs" />
+    <Compile Include="Core\DependencyContextRewriter.cs" />
+    <Compile Include="Core\IDependencyContextItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
