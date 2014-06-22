@@ -188,7 +188,7 @@ namespace SimpleInjector.Advanced.Extensions
         /// type <typeparamref name="TService"/> and will be returned when an instance of type
         /// <typeparamref name="TService"/> is requested. 
         /// The delegate is expected to produce new instances on each call.
-        /// This delegate will be called at most once per context type during the lifetime of the application.
+        /// This delegate will be called at most once per context `ImplementationType` during the lifetime of the application.
         /// The returned instance must be thread-safe when working in a multi-threaded environment.
         ///     Be aware that by using this registration method,
         /// you are probably not following the best practices, like SOLID and DRY.
