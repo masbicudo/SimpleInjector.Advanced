@@ -76,6 +76,7 @@ namespace SimpleInjector.Advanced.Extensions
                 {
                     var rewriter = new DependencyContextRewriter
                     {
+                        DependencyServiceType = typeof(TService),
                         ServiceType = e.RegisteredServiceType,
                         ContextBasedFactory = contextBasedFactory,
                         RootFactory = rootFactory,
@@ -91,7 +92,8 @@ namespace SimpleInjector.Advanced.Extensions
         ///     Registers the specified delegate <paramref name="contextBasedFactory"/> that will produce instances of
         /// type <typeparamref name="TService"/> and will be returned when an instance of type
         /// <typeparamref name="TService"/> is requested. The delegate is expected to produce new instances on
-        /// each call. The instances are cached according to the supplied <paramref name="lifestyle"/>.
+        /// each call. The instances are cached according to the supplied <paramref name="lifestyle"/>,
+        /// and also cached by context `ImplementationType` property.
         ///     Be aware that by using this registration method,
         /// you are probably not following the best practices, like SOLID and DRY.
         ///     Read remarks for more information.
@@ -139,30 +141,46 @@ namespace SimpleInjector.Advanced.Extensions
                 throw new ArgumentNullException("contextBasedFactory");
             }
 
-            // re-registering event handler
             container.ResolveUnregisteredType += (sender, args) =>
             {
-                if (args.Handled)
-                    return;
+                if (!args.Handled && typeof(IDependencyContextWrapper<TService>).IsAssignableFrom(args.UnregisteredServiceType))
+                    args.Register(lifestyle.CreateRegistration(args.UnregisteredServiceType, (Container)sender));
+            };
 
-                var container2 = (Container)sender;
-                var type = args.UnregisteredServiceType;
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DependencyContextItem<,>))
+            Func<DependencyContext, TService> depFactory =
+                c =>
                 {
-                    args.Register(lifestyle.CreateRegistration(type, container2));
+                    if (c.GetServiceWrapperType() == null)
+                        return contextBasedFactory(c);
+
+                    var obj = container.GetInstance(c.GetServiceWrapperType());
+                    var wrapper = (IDependencyContextWrapper<TService>)obj;
+                    return wrapper.GetService(contextBasedFactory, c);
+                };
+
+            Func<TService> rootFactory =
+                () => depFactory(DependencyContext.Root);
+
+            container.Register(rootFactory, Lifestyle.Transient);
+
+            // Allow the Func<DependencyContext, TService> to be 
+            // injected into parent types.
+            container.ExpressionBuilding += (sender, e) =>
+            {
+                if (e.RegisteredServiceType != typeof(TService))
+                {
+                    var rewriter = new DependencyContextRewriter
+                    {
+                        DependencyServiceType = typeof(TService),
+                        ServiceType = e.RegisteredServiceType,
+                        ContextBasedFactory = depFactory,
+                        RootFactory = rootFactory,
+                        Expression = e.Expression
+                    };
+
+                    e.Expression = rewriter.Visit(e.Expression);
                 }
             };
-
-            Func<DependencyContext, TService> contextBasedFactoryWithLifestyle = context =>
-            {
-                if (context.ServiceItemType == null)
-                    return container.GetInstance<TService>();
-
-                var serviceItem = (IDependencyContextItem<TService>)container.GetInstance(context.ServiceItemType);
-                return serviceItem.Service;
-            };
-
-            container.RegisterWithContext(contextBasedFactoryWithLifestyle);
         }
 
         /// <summary>

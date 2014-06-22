@@ -5,15 +5,17 @@ namespace SimpleInjector.Advanced.Core
 {
     internal sealed class DependencyContextRewriter : ExpressionVisitor
     {
-        internal Type ServiceType { get; set; }
+        public Type DependencyServiceType { get; set; }
 
-        internal object ContextBasedFactory { get; set; }
+        public Type ServiceType { get; set; }
 
-        internal object RootFactory { get; set; }
+        public object ContextBasedFactory { get; set; }
 
-        internal Expression Expression { get; set; }
+        public object RootFactory { get; set; }
 
-        internal Type ImplementationType
+        public Expression Expression { get; set; }
+
+        public Type ImplementationType
         {
             get
             {
@@ -41,7 +43,8 @@ namespace SimpleInjector.Advanced.Core
                 Expression.Constant(
                     new DependencyContext(
                         this.ServiceType,
-                        this.ImplementationType)));
+                        this.ImplementationType,
+                        this.DependencyServiceType)));
         }
 
         private bool IsRootedContextBasedFactory(

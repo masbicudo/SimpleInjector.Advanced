@@ -14,15 +14,21 @@ namespace SimpleInjector.Advanced.Core
         internal static readonly DependencyContext Root =
             new DependencyContext();
 
-        internal DependencyContext(Type serviceType, Type implementationType)
+        private readonly Lazy<Type> wrapperType;
+
+        internal DependencyContext(Type serviceType, Type implementationType, Type dependencyServiceType)
         {
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;
-            this.ServiceItemType = typeof(DependencyContextItem<,>).MakeGenericType(implementationType, serviceType);
+            this.wrapperType = new Lazy<Type>(
+                () => typeof(DependencyContextWrapper<,>).MakeGenericType(
+                    dependencyServiceType,
+                    implementationType));
         }
 
         private DependencyContext()
         {
+            this.wrapperType = new Lazy<Type>(() => null);
         }
 
         /// <summary>
@@ -35,6 +41,9 @@ namespace SimpleInjector.Advanced.Core
         /// </summary>
         public Type ImplementationType { get; private set; }
 
-        internal Type ServiceItemType { get; private set; }
+        internal Type GetServiceWrapperType()
+        {
+            return this.wrapperType.Value;
+        }
     }
 }
