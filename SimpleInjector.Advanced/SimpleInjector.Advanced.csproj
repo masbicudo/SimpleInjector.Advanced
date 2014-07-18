@@ -58,6 +58,7 @@
     <Compile Include="Core\DependencyContextWrapper.cs" />
     <Compile Include="Core\DependencyContextRewriter.cs" />
     <Compile Include="Core\IDependencyContextWrapper.cs" />
+    <Compile Include="Helpers\TypeReplacementVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

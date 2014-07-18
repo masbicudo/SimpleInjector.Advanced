@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using SimpleInjector.Advanced.Core;
+using SimpleInjector.Advanced.Helpers;
 
 namespace SimpleInjector.Advanced.Extensions
 {
@@ -8,6 +11,7 @@ namespace SimpleInjector.Advanced.Extensions
     /// </summary>
     public static class ContainerExtensions
     {
+        #region RegisterWithContext
         /// <summary>
         ///     Registers the specified delegate <paramref name="contextBasedFactory"/> that will produce instances of
         /// type <typeparamref name="TService"/> and will be returned when an instance of type
@@ -232,5 +236,35 @@ namespace SimpleInjector.Advanced.Extensions
         {
             container.RegisterWithContext(contextBasedFactory, Lifestyle.Singleton);
         }
+        #endregion
+
+        #region RegisterLazy
+        /// <summary>
+        /// Registers the open generic Lazy&lt;> for all types that happen to be registered in the container.
+        /// </summary>
+        /// <param name="container">The container in which the service will be registered.</param>
+        public static void RegisterLazy(this Container container)
+        {
+            container.ResolveUnregisteredType += (sender, args) =>
+            {
+                var cont = (Container)sender;
+                var t = args.UnregisteredServiceType;
+                if (t.IsGenericType && typeof(Lazy<>).IsAssignableFrom(t.GetGenericTypeDefinition()))
+                {
+                    var typeLazyService = t.GetGenericArguments().Single();
+
+                    // Expression that will serve as a mold,
+                    // in which the `MarkerType` will be replaced by `typeLazyService`.
+                    Expression<Func<Lazy<MarkerType>>> x = () => new Lazy<MarkerType>(cont.GetInstance<MarkerType>);
+
+                    var expr = new TypeReplacementVisitor(typeof(MarkerType), typeLazyService).Visit(x.Body);
+
+                    args.Register(expr);
+                }
+            };
+        }
+        #endregion
+
+        private class MarkerType { }
     }
 }
