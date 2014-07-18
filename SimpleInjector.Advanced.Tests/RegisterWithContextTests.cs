@@ -1,21 +1,21 @@
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Web;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SimpleInjector.Advanced.Extensions;
 using SimpleInjector.Advanced.Tests.Models;
 using SimpleInjector.Extensions;
 using SimpleInjector.Integration.Web;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Web;
 
 namespace SimpleInjector.Advanced.Tests
 {
     [TestClass]
-    public class UnitTests
+    public class RegisterWithContextTests
     {
-        static UnitTests()
+        static RegisterWithContextTests()
         {
-            var tests = new UnitTests();
+            var tests = new RegisterWithContextTests();
             var methods = tests.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var methodInfo in methods.Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute)).Any()))
                 methodInfo.Invoke(tests, null);

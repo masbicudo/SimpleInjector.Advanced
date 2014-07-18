@@ -9,4 +9,14 @@
 
         public IDependable Dependable { get; private set; }
     }
+
+    public class Depender<TDependency> : IDepender
+    {
+        public TDependency Dependable { get; set; }
+
+        public Depender(TDependency dependency)
+        {
+            this.Dependable = dependency;
+        }
+    }
 }

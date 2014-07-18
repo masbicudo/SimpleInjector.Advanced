@@ -83,3 +83,4 @@ UpgradeLog*.htm*
 Uncommited.*
 Uncommited/
 
+*.nupkg
