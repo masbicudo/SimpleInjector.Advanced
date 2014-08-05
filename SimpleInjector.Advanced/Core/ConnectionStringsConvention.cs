@@ -12,13 +12,30 @@ namespace SimpleInjector.Advanced.Core
     public class ConnectionStringsConvention : IParameterConvention
     {
         private const string ConnectionStringPostFix = "ConnectionString";
+        private const string ConnectionProviderNamePostFix = "ConnectionProviderName";
+
+        private readonly Func<string, ConnectionStringSettings> connectionStringReader;
+
+        public ConnectionStringsConvention()
+        {
+            this.connectionStringReader = x => ConfigurationManager.ConnectionStrings[x];
+        }
+
+        public ConnectionStringsConvention(Func<string, ConnectionStringSettings> connectionStringReader)
+        {
+            if (connectionStringReader == null)
+                throw new ArgumentNullException("connectionStringReader");
+
+            this.connectionStringReader = connectionStringReader;
+        }
 
         public bool CanResolve(ParameterInfo parameter)
         {
+            var cn = ConnectionStringPostFix;
             bool resolvable =
-                parameter.ParameterType == typeof(string) &&
-                parameter.Name.EndsWith(ConnectionStringPostFix) &&
-                parameter.Name.LastIndexOf(ConnectionStringPostFix, StringComparison.Ordinal) > 0;
+                parameter.ParameterType == typeof(ConnectionStringSettings)
+                || CheckParamName(parameter, ConnectionStringPostFix)
+                || CheckParamName(parameter, ConnectionProviderNamePostFix);
 
             if (resolvable)
             {
@@ -28,11 +45,37 @@ namespace SimpleInjector.Advanced.Core
             return resolvable;
         }
 
+        private static bool CheckParamName(ParameterInfo parameter, string cn)
+        {
+            return parameter.ParameterType == typeof(string)
+                    && parameter.Name.EndsWith(cn)
+                    && parameter.Name.Length > cn.Length;
+        }
+
         public Expression BuildExpression(ParameterInfo parameter)
         {
-            var constr = this.GetConnectionString(parameter);
+            if (parameter.ParameterType == typeof(ConnectionStringSettings))
+            {
+                var constr = this.GetConnectionString(parameter);
+                return Expression.Constant(constr, typeof(ConnectionStringSettings));
+            }
 
-            return Expression.Constant(constr, typeof(string));
+            if (parameter.ParameterType == typeof(string))
+            {
+                if (parameter.Name.EndsWith(ConnectionStringPostFix))
+                {
+                    var constr = this.GetConnectionString(parameter);
+                    return Expression.Constant(constr.ConnectionString, typeof(string));
+                }
+
+                if (parameter.Name.EndsWith(ConnectionProviderNamePostFix))
+                {
+                    var constr = this.GetConnectionString(parameter);
+                    return Expression.Constant(constr.ProviderName, typeof(string));
+                }
+            }
+
+            throw new ArgumentException("Could not build expression from the given ParameterInfo", "parameter");
         }
 
         private void VerifyConfigurationFile(ParameterInfo parameter)
@@ -40,14 +83,31 @@ namespace SimpleInjector.Advanced.Core
             this.GetConnectionString(parameter);
         }
 
-        private string GetConnectionString(ParameterInfo parameter)
+        private ConnectionStringSettings GetConnectionString(ParameterInfo parameter)
         {
-            string name = parameter.Name.Substring(
-                0,
-                parameter.Name.LastIndexOf(ConnectionStringPostFix, StringComparison.Ordinal));
+            string name;
+            if (parameter.ParameterType == typeof(ConnectionStringSettings))
+            {
+                name = parameter.Name;
+            }
+            else if (parameter.Name.EndsWith(ConnectionStringPostFix))
+            {
+                name = parameter.Name.Substring(
+                    0,
+                    parameter.Name.LastIndexOf(ConnectionStringPostFix, StringComparison.Ordinal));
+            }
+            else if (parameter.Name.EndsWith(ConnectionProviderNamePostFix))
+            {
+                name = parameter.Name.Substring(
+                    0,
+                    parameter.Name.LastIndexOf(ConnectionProviderNamePostFix, StringComparison.Ordinal));
+            }
+            else
+            {
+                throw new ArgumentException("Could not get ConnectionStringSettings from the given ParameterInfo", "parameter");
+            }
 
-            ConnectionStringSettings settings =
-                ConfigurationManager.ConnectionStrings[name];
+            var settings = this.connectionStringReader(name);
 
             if (settings == null)
             {
@@ -57,7 +117,7 @@ namespace SimpleInjector.Advanced.Core
                     "configuration file.");
             }
 
-            return settings.ConnectionString;
+            return settings;
         }
     }
 }

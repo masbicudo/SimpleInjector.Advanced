@@ -15,6 +15,21 @@ namespace SimpleInjector.Advanced.Core
     {
         private const string AppSettingsPostFix = "AppSetting";
 
+        private readonly Func<string, string> applicationSettingsReader;
+
+        public AppSettingsConvention()
+        {
+            this.applicationSettingsReader = x => ConfigurationManager.AppSettings[x];
+        }
+
+        public AppSettingsConvention(Func<string, string> applicationSettingsReader)
+        {
+            if (applicationSettingsReader == null)
+                throw new ArgumentNullException("applicationSettingsReader");
+
+            this.applicationSettingsReader = applicationSettingsReader;
+        }
+
         public bool CanResolve(ParameterInfo parameter)
         {
             Type type = parameter.ParameterType;
@@ -53,7 +68,7 @@ namespace SimpleInjector.Advanced.Core
                 parameter.Name.LastIndexOf(AppSettingsPostFix, StringComparison.Ordinal));
 
             string configurationValue =
-                ConfigurationManager.AppSettings[key];
+                this.applicationSettingsReader(key);
 
             if (configurationValue == null)
             {

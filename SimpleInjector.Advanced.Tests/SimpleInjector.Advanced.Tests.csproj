@@ -54,6 +54,7 @@
       <HintPath>..\packages\SimpleInjector.Integration.Web.Mvc.2.5.0\lib\net40\SimpleInjector.Integration.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <Choose>
@@ -69,6 +70,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Conventions.cs" />
+    <Compile Include="Models\ConfigDepender.cs" />
     <Compile Include="RegisterLazyTests.cs" />
     <Compile Include="Models\Dependable.cs" />
     <Compile Include="Models\Depender.cs" />
