@@ -1,10 +1,8 @@
-using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SimpleInjector.Advanced.Core;
 using SimpleInjector.Advanced.Extensions;
 using SimpleInjector.Advanced.Tests.Models;
-using SimpleInjector.Extensions;
-using System;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 
@@ -27,7 +25,17 @@ namespace SimpleInjector.Advanced.Tests
             var container = new Container();
 
             container.Options.RegisterParameterConvention(new AppSettingsConvention(x => x + "Cfg"));
-            container.Options.RegisterParameterConvention(new ConnectionStringsConvention(x => new ConnectionStringSettings(x, x + "ConnStr", x + "Prov")));
+            container.Options.RegisterParameterConvention(new ConnectionStringsConvention(
+                x =>
+                {
+                    switch (x)
+                    {
+                        case "masb": return new ConnectionStringSettings("masb", "masbConnStr", "masbProv");
+                        case "masbConnection": return new ConnectionStringSettings("masbConnection", "masbConnStr1", "masbProv");
+                        case "masbConnectionSetting": return new ConnectionStringSettings("masbConnectionSettings", "masbConnStr2", "masbProv");
+                        default: return null;
+                    }
+                }));
 
             container.Register<ConfigDepender>();
 
@@ -40,6 +48,9 @@ namespace SimpleInjector.Advanced.Tests
             Assert.AreEqual(depender.MasbConnectionProviderName, "masbProv");
             Assert.AreEqual(depender.Masb.ConnectionString, "masbConnStr");
             Assert.AreEqual(depender.Masb.ProviderName, "masbProv");
+            Assert.AreEqual(depender.MasbConnection.ConnectionString, "masbConnStr1");
+            Assert.AreEqual(depender.MasbConnectionSettings.ConnectionString, "masbConnStr2");
+            Assert.AreEqual(depender.MasbConnectionStringSetting.ConnectionString, "masbConnStr");
         }
     }
 }

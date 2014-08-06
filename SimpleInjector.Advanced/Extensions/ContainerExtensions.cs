@@ -11,7 +11,7 @@ namespace SimpleInjector.Advanced.Extensions
     /// </summary>
     public static class ContainerExtensions
     {
-        #region RegisterWithContext
+        #region RegisterWithContext, RegisterSingleWithContext
 
         /// <summary>
         ///     Registers the specified delegate <paramref name="contextBasedFactory"/> that will produce instances of
@@ -76,21 +76,21 @@ namespace SimpleInjector.Advanced.Extensions
             // Allow the Func<DependencyContext, TService> to be 
             // injected into parent types.
             container.ExpressionBuilding += (sender, e) =>
-                                            {
-                                                if (e.RegisteredServiceType != typeof(TService))
-                                                {
-                                                    var rewriter = new DependencyContextRewriter
-                                                                   {
-                                                                       DependencyServiceType = typeof(TService),
-                                                                       ServiceType = e.RegisteredServiceType,
-                                                                       ContextBasedFactory = contextBasedFactory,
-                                                                       RootFactory = rootFactory,
-                                                                       Expression = e.Expression
-                                                                   };
+            {
+                if (e.RegisteredServiceType != typeof(TService))
+                {
+                    var rewriter = new DependencyContextRewriter
+                    {
+                        DependencyServiceType = typeof(TService),
+                        ServiceType = e.RegisteredServiceType,
+                        ContextBasedFactory = contextBasedFactory,
+                        RootFactory = rootFactory,
+                        Expression = e.Expression
+                    };
 
-                                                    e.Expression = rewriter.Visit(e.Expression);
-                                                }
-                                            };
+                    e.Expression = rewriter.Visit(e.Expression);
+                }
+            };
         }
 
         /// <summary>
@@ -147,15 +147,16 @@ namespace SimpleInjector.Advanced.Extensions
             }
 
             container.ResolveUnregisteredType += (sender, args) =>
-                                                 {
-                                                     if (!args.Handled
-                                                         && typeof(IDependencyContextWrapper<TService>).IsAssignableFrom
-                                                             (args.UnregisteredServiceType))
-                                                         args.Register(
-                                                             lifestyle.CreateRegistration(
-                                                                 args.UnregisteredServiceType,
-                                                                 (Container)sender));
-                                                 };
+            {
+                if (!args.Handled
+                    && typeof(IDependencyContextWrapper<TService>).IsAssignableFrom(args.UnregisteredServiceType))
+                {
+                    args.Register(
+                        lifestyle.CreateRegistration(
+                            args.UnregisteredServiceType,
+                            (Container)sender));
+                }
+            };
 
             Func<DependencyContext, TService> depFactory =
                 c =>
@@ -176,21 +177,21 @@ namespace SimpleInjector.Advanced.Extensions
             // Allow the Func<DependencyContext, TService> to be 
             // injected into parent types.
             container.ExpressionBuilding += (sender, e) =>
-                                            {
-                                                if (e.RegisteredServiceType != typeof(TService))
-                                                {
-                                                    var rewriter = new DependencyContextRewriter
-                                                                   {
-                                                                       DependencyServiceType = typeof(TService),
-                                                                       ServiceType = e.RegisteredServiceType,
-                                                                       ContextBasedFactory = depFactory,
-                                                                       RootFactory = rootFactory,
-                                                                       Expression = e.Expression
-                                                                   };
+            {
+                if (e.RegisteredServiceType != typeof(TService))
+                {
+                    var rewriter = new DependencyContextRewriter
+                    {
+                        DependencyServiceType = typeof(TService),
+                        ServiceType = e.RegisteredServiceType,
+                        ContextBasedFactory = depFactory,
+                        RootFactory = rootFactory,
+                        Expression = e.Expression
+                    };
 
-                                                    e.Expression = rewriter.Visit(e.Expression);
-                                                }
-                                            };
+                    e.Expression = rewriter.Visit(e.Expression);
+                }
+            };
         }
 
         /// <summary>
@@ -254,41 +255,47 @@ namespace SimpleInjector.Advanced.Extensions
         public static void RegisterLazy(this Container container)
         {
             container.ResolveUnregisteredType += (sender, args) =>
-                                                 {
-                                                     var cont = (Container)sender;
-                                                     var t = args.UnregisteredServiceType;
-                                                     if (t.IsGenericType
-                                                         && typeof(Lazy<>).IsAssignableFrom(
-                                                             t.GetGenericTypeDefinition()))
-                                                     {
-                                                         var typeLazyService = t.GetGenericArguments().Single();
+            {
+                var cont = (Container)sender;
+                var t = args.UnregisteredServiceType;
+                if (t.IsGenericType
+                    && typeof(Lazy<>).IsAssignableFrom(
+                        t.GetGenericTypeDefinition()))
+                {
+                    var typeLazyService = t.GetGenericArguments().Single();
 
-                                                         // Expression that will serve as a mold,
-                                                         // in which the `MarkerType` will be replaced by `typeLazyService`.
-                                                         Expression<Func<Lazy<MarkerType>>> x =
-                                                             () => new Lazy<MarkerType>(cont.GetInstance<MarkerType>);
+                    // Expression that will serve as a mold,
+                    // in which the `MarkerType` will be replaced by `typeLazyService`.
+                    Expression<Func<Lazy<MarkerType>>> x =
+                        () => new Lazy<MarkerType>(cont.GetInstance<MarkerType>);
 
-                                                         var expr =
-                                                             new TypeReplacementVisitor(
-                                                                 typeof(MarkerType),
-                                                                 typeLazyService).Visit(x.Body);
+                    var expr =
+                        new TypeReplacementVisitor(
+                            typeof(MarkerType),
+                            typeLazyService).Visit(x.Body);
 
-                                                         args.Register(expr);
-                                                     }
-                                                 };
+                    args.Register(expr);
+                }
+            };
         }
 
         #endregion
 
+        #region RegisterParameterConvention
+
         /// <summary>
-        /// Registers conventions for parameters
+        /// Registers conventions for parameters, 
+        /// that can resolve dependencies based on parameter metadata other than Type alone.
+        /// (e.g. by parameter name, by parameter attributes, etc.)
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="convention"></param>
+        /// <param name="options"> The <see cref="C:ContainerOptions"/> of the <see cref="C:Container"/>. </param>
+        /// <param name="convention"> The <see cref="IParameterConvention"/> to register. </param>
         public static void RegisterParameterConvention(
             this ContainerOptions options,
             IParameterConvention convention)
         {
+            //// based on: http://www.cuttingedge.it/blogs/steven/pivot/entry.php?id=94
+
             options.ConstructorVerificationBehavior =
                 new ConventionConstructorVerificationBehavior(
                     options.ConstructorVerificationBehavior,
@@ -299,6 +306,8 @@ namespace SimpleInjector.Advanced.Extensions
                     options.ConstructorInjectionBehavior,
                     convention);
         }
+
+        #endregion
 
         private class MarkerType
         {

@@ -13,15 +13,29 @@ namespace SimpleInjector.Advanced.Core
     /// </summary>
     public class AppSettingsConvention : IParameterConvention
     {
+        //// based on: http://www.cuttingedge.it/blogs/steven/pivot/entry.php?id=94
+
         private const string AppSettingsPostFix = "AppSetting";
 
         private readonly Func<string, string> applicationSettingsReader;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSettingsConvention"/> class.
+        /// </summary>
         public AppSettingsConvention()
         {
             this.applicationSettingsReader = x => ConfigurationManager.AppSettings[x];
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSettingsConvention"/> class.
+        /// </summary>
+        /// <param name="applicationSettingsReader">
+        /// An application settings reader delegate, that can change the default behavior.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// When <paramref name="applicationSettingsReader"/> is null.
+        /// </exception>
         public AppSettingsConvention(Func<string, string> applicationSettingsReader)
         {
             if (applicationSettingsReader == null)
@@ -30,6 +44,12 @@ namespace SimpleInjector.Advanced.Core
             this.applicationSettingsReader = applicationSettingsReader;
         }
 
+        /// <summary>
+        /// Returns a value indicating whether an <see cref="C:Expression"/> can be built and injected
+        /// through the given <see cref="C:ParameterInfo"/> that represents a constructor parameter.
+        /// </summary>
+        /// <param name="parameter">A <see cref="C:ParameterInfo"/> representing a constructor parameter to inject a value to.</param>
+        /// <returns>True if an <see cref="C:Expression"/> can be built and injected through a given constructor parameter.</returns>
         public bool CanResolve(ParameterInfo parameter)
         {
             Type type = parameter.ParameterType;
@@ -47,6 +67,11 @@ namespace SimpleInjector.Advanced.Core
             return resolvable;
         }
 
+        /// <summary>
+        /// Returns an <see cref="C:Expression"/> from a <see cref="C:ParameterInfo"/> representing a constructor parameter.
+        /// </summary>
+        /// <param name="parameter">A <see cref="C:ParameterInfo"/> representing a constructor parameter to inject a value to.</param>
+        /// <returns>An <see cref="C:Expression"/> that when compiled returns the value to inject into the constructor parameter.</returns>
         public Expression BuildExpression(ParameterInfo parameter)
         {
             object valueToInject = this.GetAppSettingValue(parameter);

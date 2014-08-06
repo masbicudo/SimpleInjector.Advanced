@@ -64,7 +64,9 @@
     <Compile Include="Core\DependencyContextWrapper.cs" />
     <Compile Include="Core\DependencyContextRewriter.cs" />
     <Compile Include="Core\IDependencyContextWrapper.cs" />
+    <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\TypeReplacementVisitor.cs" />
+    <Compile Include="JetBrains.Annotations\JetBrains.Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
