@@ -8,15 +8,14 @@
     <owners>$author$</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
     <projectUrl>https://github.com/masbicudo/SimpleInjector.Advanced</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/masbicudo/SimpleInjector.Advanced/master/SimpleInjector.Advanced/simpleinjector.advanced.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/masbicudo/SimpleInjector.Advanced/master/SimpleInjector.Advanced/simpleinjector.advanced.128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-        Package containing `RegisterWithContext` extension methods,
-        based on the snippet provided at SimpleInjector code plex page.
-        This version corrected some bugs from the first package.
+        Additional methods: `RegisterWithContext`, `RegisterSingleWithContext`, `RegisterLazy` and `RegisterParameterConvention`.
+        Based on snippets provided at SimpleInjector code plex page.
     </releaseNotes>
     <copyright>Copyright 2014</copyright>
-    <tags>SimpleInjector Advanced Registration Extensions</tags>
+    <tags>SimpleInjector Advanced Registration Extensions Simple Injector DI Dependency Injection RegisterWithContext RegisterLazy RegisterParameterConvention</tags>
   </metadata>
 </package>
