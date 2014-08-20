@@ -18,10 +18,9 @@ namespace SimpleInjector.Advanced.Core
 
         public void Verify(ParameterInfo parameter)
         {
-            if (!this.convention.CanResolve(parameter))
-            {
-                this.decorated.Verify(parameter);
-            }
+            if (this.convention.CanResolve(parameter))
+                return;
+            this.decorated.Verify(parameter);
         }
     }
 }

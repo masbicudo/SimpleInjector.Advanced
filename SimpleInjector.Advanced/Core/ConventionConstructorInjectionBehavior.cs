@@ -20,12 +20,10 @@ namespace SimpleInjector.Advanced.Core
         public Expression BuildParameterExpression(
             ParameterInfo parameter)
         {
-            if (!this.convention.CanResolve(parameter))
-            {
-                return this.decorated.BuildParameterExpression(parameter);
-            }
+            if (this.convention.CanResolve(parameter))
+                return this.convention.BuildExpression(parameter);
 
-            return this.convention.BuildExpression(parameter);
+            return this.decorated.BuildParameterExpression(parameter);
         }
     }
 }

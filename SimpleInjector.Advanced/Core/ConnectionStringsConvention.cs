@@ -112,48 +112,12 @@ namespace SimpleInjector.Advanced.Core
 
         private ConnectionStringSettings GetConnectionString(ParameterInfo parameter)
         {
-            string[] namesToTry;
-            if (parameter.ParameterType == typeof(ConnectionStringSettings))
-            {
-                var pureName =
-                    parameter.Name.RemoveEnd(
-                        new[] { "ConnectionStringSetting", "ConnectionString", "ConnectionSetting", "Connection" },
-                        StringComparison.OrdinalIgnoreCase);
+            string[] namesToTry = NamesToTry(parameter);
 
-                namesToTry = new[]
-                {
-                    parameter.Name,
-                    pureName,
-                    pureName + "Connection",
-                    pureName + "ConnectionString",
-                    pureName + "ConnectionSetting",
-                    pureName + "ConnectionStringSetting",
-                };
-            }
-            else if (parameter.Name.EndsWith(ConnectionStringPostFix))
-            {
-                namesToTry = new[]
-                {
-                    parameter.Name.Substring(
-                        0,
-                        parameter.Name.LastIndexOf(ConnectionStringPostFix, StringComparison.Ordinal)),
-                };
-            }
-            else if (parameter.Name.EndsWith(ConnectionProviderNamePostFix))
-            {
-                namesToTry = new[]
-                {
-                    parameter.Name.Substring(
-                        0,
-                        parameter.Name.LastIndexOf(ConnectionProviderNamePostFix, StringComparison.Ordinal)),
-                };
-            }
-            else
-            {
+            if (namesToTry == null || namesToTry.Length == 0)
                 throw new ArgumentException(
-                    string.Format("Cannot get a ConnectionStringSettings for the given ParameterInfo: {0}", parameter.Name),
+                    string.Format("Cannot infer ConnectionStringSettings name from the given ParameterInfo: {0}", parameter.Name),
                     "parameter");
-            }
 
             var settings = namesToTry
                 .Where(name => name != null)
@@ -164,11 +128,57 @@ namespace SimpleInjector.Advanced.Core
             {
                 throw new ActivationException(
                     string.Format(
-                        "No connection string with name '{0}' could be found in the application's configuration file.",
-                        string.Join("' or '", namesToTry.Distinct())));
+                        "Cannot find a connection string in the application's configuration file:\n Tried names: '{0}'",
+                        string.Join("'\n'", namesToTry.Distinct().OrderBy(x => x))));
             }
 
             return settings;
+        }
+
+        private static string[] NamesToTry(ParameterInfo parameter)
+        {
+            if (parameter.ParameterType == typeof(ConnectionStringSettings))
+            {
+                var pureName =
+                    parameter.Name.RemoveEnd(
+                        new[] { "ConnectionStringSetting", "ConnectionString", "ConnectionSetting", "Connection" },
+                        StringComparison.OrdinalIgnoreCase);
+
+                return new[]
+                       {
+                           parameter.Name,
+                           pureName,
+                           pureName + "Connection",
+                           pureName + "ConnectionString",
+                           pureName + "ConnectionSetting",
+                           pureName + "ConnectionStringSetting",
+                       };
+            }
+
+            if (parameter.ParameterType == typeof(string))
+            {
+                if (parameter.Name.EndsWith(ConnectionStringPostFix))
+                {
+                    return new[]
+                           {
+                               parameter.Name.Substring(
+                                   0,
+                                   parameter.Name.LastIndexOf(ConnectionStringPostFix, StringComparison.Ordinal)),
+                           };
+                }
+
+                if (parameter.Name.EndsWith(ConnectionProviderNamePostFix))
+                {
+                    return new[]
+                           {
+                               parameter.Name.Substring(
+                                   0,
+                                   parameter.Name.LastIndexOf(ConnectionProviderNamePostFix, StringComparison.Ordinal)),
+                           };
+                }
+            }
+
+            return null;
         }
     }
 }

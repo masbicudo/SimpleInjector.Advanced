@@ -22,7 +22,7 @@ namespace SimpleInjector.Advanced.Tests
         }
 
         [TestMethod]
-        public void TestWithoutLifestyle()
+        public void RegisterWithContext_TestWithoutLifestyle()
         {
             var container = new Container();
 
@@ -48,7 +48,7 @@ namespace SimpleInjector.Advanced.Tests
         }
 
         [TestMethod]
-        public void TestWithSingletonLifestyle()
+        public void RegisterWithContext_TestWithSingletonLifestyle()
         {
             var container = new Container();
 
@@ -82,7 +82,7 @@ namespace SimpleInjector.Advanced.Tests
         }
 
         [TestMethod]
-        public void TestWithWebLifestyle()
+        public void RegisterWithContext_TestWithWebLifestyle()
         {
             var container = new Container();
 

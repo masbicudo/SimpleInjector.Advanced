@@ -13,14 +13,14 @@ namespace SimpleInjector.Advanced.Tests
     {
         static RegisterLazyTests()
         {
-            var tests = new RegisterWithContextTests();
+            var tests = new RegisterLazyTests();
             var methods = tests.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var methodInfo in methods.Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()))
                 methodInfo.Invoke(tests, null);
         }
 
         [TestMethod]
-        public void SimpleTest()
+        public void RegisterLazy_SimpleTest()
         {
             var container = new Container();
 
@@ -37,7 +37,7 @@ namespace SimpleInjector.Advanced.Tests
         }
 
         [TestMethod]
-        public void NestedTest()
+        public void RegisterLazy_NestedTest()
         {
             var container = new Container();
 

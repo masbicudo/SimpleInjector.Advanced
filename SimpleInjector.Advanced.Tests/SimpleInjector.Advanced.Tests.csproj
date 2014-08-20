@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="Conventions.cs" />
     <Compile Include="Models\ConfigDepender.cs" />
+    <Compile Include="Models\NotConnStrDepender.cs" />
     <Compile Include="RegisterLazyTests.cs" />
     <Compile Include="Models\Dependable.cs" />
     <Compile Include="Models\Depender.cs" />
