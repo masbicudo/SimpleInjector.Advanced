@@ -18,4 +18,13 @@
     <copyright>Copyright 2014</copyright>
     <tags>SimpleInjector Advanced Registration Extensions Simple Injector DI Dependency Injection RegisterWithContext RegisterLazy RegisterParameterConvention</tags>
   </metadata>
+    <files>
+        <file src="bin\Release net40\SimpleInjector.Advanced.dll" target="lib\net40\SimpleInjector.Advanced.dll" />
+        <file src="bin\Release net40\SimpleInjector.Advanced.pdb" target="lib\net40\SimpleInjector.Advanced.pdb" />
+        <file src="bin\Release net40\SimpleInjector.Advanced.xml" target="lib\net40\SimpleInjector.Advanced.xml" />
+        <file src="bin\Release net45\SimpleInjector.Advanced.dll" target="lib\net45\SimpleInjector.Advanced.dll" />
+        <file src="bin\Release net45\SimpleInjector.Advanced.pdb" target="lib\net45\SimpleInjector.Advanced.pdb" />
+        <file src="bin\Release net45\SimpleInjector.Advanced.xml" target="lib\net45\SimpleInjector.Advanced.xml" />
+        <file src="**\*.cs" target="src" />
+    </files>
 </package>

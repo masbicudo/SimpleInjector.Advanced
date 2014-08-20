@@ -15,7 +15,7 @@ namespace SimpleInjector.Advanced.Tests
         {
             var tests = new RegisterWithContextTests();
             var methods = tests.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-            foreach (var methodInfo in methods.Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute)).Any()))
+            foreach (var methodInfo in methods.Where(m => m.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()))
                 methodInfo.Invoke(tests, null);
         }
 
